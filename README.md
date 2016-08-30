@@ -4,6 +4,8 @@ The geoJSON data format is described at geojson.org as "<em><b>a format for enco
 
 In this example I'll be using a set of oil/gas well data supplied by the State of Colorado describing approx 110,000 wells in the state.
 
+I'll start out with some examples of how to manipulate the data loaded into a dataframe, followed by the complete exercise to clean up and store the JSON data in cassandra.
+
 The format of the geoJSON source data looks like this:
 <pre lang="javascript">
 {
@@ -54,7 +56,7 @@ The format of the geoJSON source data looks like this:
 
 Our objective is to load the data into Cassandra so that we can use it in other applications. For this we are going to use Apache Spark, via DataFrames and Spark SQL.
 
-For this exercise I'm using the DataStax distribution of Apache Cassandra 3.0.7 that comes integrated with a distribution of Apache Spark 1.6.
+For this exercise I'm using DataStax Enterprise 5.0.1 that contains Apache Cassandra 3.0.7 and comes integrated with a distribution of Apache Spark 1.6.1
 <h2>Start The Spark REPL</h2>
 <pre># dse spark
 Welcome to
@@ -71,10 +73,6 @@ Initializing SparkContext with MASTER: spark://127.0.0.1:7077
 Created spark context..
 Spark context available as sc.
 Hive context available as sqlContext. Will be initialized on first use.
-</pre>
-<h3>Create a Spark SQL content from the Spark Context</h3>
-<pre lang="scala">
-scala> val sqlContext = new org.apache.spark.sql.SQLContext(sc)
 </pre>
 
 <h3>Read The json file into a Spark Dataframe</h3>
@@ -167,7 +165,7 @@ scala> df.show()
 only showing top 20 rows
 </pre>
 
-When the data is in the dataframe we can register it as a SparkSQL table (I've called it "jsontable") so that we can select data e.g. API and geometry coordinates for all wells into another dataframe called "well_locs":
+When the data is in the dataframe we can register it as a SparkSQL table (I've called it "jsontable") so that we can select data using SQL e.g. API and geometry coordinates for all wells into another dataframe called "well_locs":
 
 <pre>
 scala> df.registerTempTable("jsonTable")
@@ -299,31 +297,44 @@ scala> API.collect.take(10).foreach(println)
 [12323463]
 [12323464]
 [04511663]
-...
-[12343487]
-[12343488]
-[12343489]
-[12343490]
-[null]
-[null]
 </pre>
 
-We can use Spark SQL to extract the well API numbers from the table and count them:
+There are some nulls at the end too.
+We can use Spark SQL to extract the well API numbers from the table and count them - actually there are two ways we can do this: (1) create a new dataframe and count the rows, or (2) directly count the rows in the table using SQL:
 
 <pre lang="scala">
 scala> val API = sqlContext.sql("SELECT properties.API FROM jsonTable")
-
 scala> API.count
 res17: Long = 110280
 </pre>
+or
+<pre lang="scala">
+scala> sqlContext.sql("SELECT count (*) FROM jsonTable").show
++------+
+|   _c0|
++------+
+|110280|
++------+
+</pre>
 
-Do the same thing, removing null records - we can see that the 6 null records have been removed:
+Do the same thing, removing null records - we can see that the 6 null records have been removed.
+With a dataframe:
 <pre lang="scala">
 scala> val API = sqlContext.sql("SELECT properties.API FROM jsonTable where properties.API is not null")
 API: org.apache.spark.sql.DataFrame = [API: string]
 
 scala> API.count
 res21: Long = 110274
+</pre>
+...and with SQL:
+<pre lang="scala">
+scala> sqlContext.sql("SELECT count (*) FROM jsonTable where properties.API is not null").show
++------+                                                                        
+|   _c0|
++------+
+|110274|
++------+
+
 </pre>
 
 <H2>Tidy Up The geoJSON Data And Save It To Cassandra</H2>
