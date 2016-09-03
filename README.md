@@ -60,6 +60,9 @@ Our objective is to load the data into Cassandra so that we can use it in other 
 
 For this exercise I'm using DataStax Enterprise 5.0.1 that contains Apache Cassandra 3.0.7 and comes integrated with a distribution of Apache Spark 1.6.1
 <h2>Start The Spark REPL</h2>
+
+The Spark REPL (Read Evaluate Print Loop) is a shell that allows you to interact with Spark, principally using Scala.
+
 <pre># dse spark
 Welcome to
 ____ __
@@ -345,7 +348,7 @@ OK, so we've seen how we can manipulate and examine the data in our source geoJS
 Now we can go through the process of cleaning up the data and formatting it correctly so that we can load it into Cassandra.
 
 <H3>1. Process The geoJSON Source File To Convert All Field (Column) Names To Lower Case</H3>
-There is an issue with column names when saving to Cassandra if the column names are not in lower case (this may be a problem with the Spark Cassandra connector, or it could be a problem with Spark itself - I'm using Spark 1.6.1 here).
+There appears an issue with upper case column names when saving from Spark to Cassandra (not sure whether it's the Spark Cassandra connector or Spark itself - there's a JIRA - I'm using Spark 1.6.1 here).
 So we first need to convert our column names to lower case. I've used a script containing the following sed commands:
 <pre>
 sed -i -e 's/"Api_Seq"/"api_seq"/' wells_geoJSON.geojson
@@ -392,7 +395,7 @@ sed -i -e 's/"Max_TVD"/"max_tvd"/' wells_geoJSON.geojson
 scala> val df = sqlContext.read.json("file:///tmp/wells_geoJSON.geojson")
 </pre>
 
-<H3>3. Remove The Corrupt Record</H3>
+<H3>3. Identify The Corrupt Record</H3>
 The FeatureCollection wrapper of the JSON object isn't understood and needs to be removed:
 
 <pre>
@@ -477,7 +480,7 @@ Register the dataframe as a SparkSQL table so that we can see it more easily:
 scala> df.registerTempTable("jsonTable");
 </pre>
 
-<H3>4. Drop the _corrupt_record column from the original dataframe:</H3>
+<H3>4. Drop The _corrupt_record Column From Our DataFrame:</H3>
 We need to get rid of that _corrupt_record column - we do that using the dataframe drop method.
 <pre>
 scala> val df2=df.drop(df.col("_corrupt_record"))
@@ -825,7 +828,7 @@ INSERT into wells.wells JSON '{"API": "12508888", "type": "Feature","properties"
 </pre>
 
 
-<h3>10. Write the dataframe back to Cassandra</h3>
+<h3>10. Write The Dataframe Back to Cassandra</h3>
 Now that we have the data in a correctly formatted dataframe we can write it to a Cassandra table using the Spark Cassandra connector.
 <pre lang="scala">
 scala> wells.write.format("org.apache.spark.sql.cassandra").options(Map( "table" -> "wells", "keyspace" -> "wells")).save()
