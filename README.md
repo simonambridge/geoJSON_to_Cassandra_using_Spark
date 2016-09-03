@@ -83,7 +83,7 @@ Hive context available as sqlContext. Will be initialized on first use.
 <h3>Read The json file into a Spark Dataframe</h3>
 Using the 'read' method gives us the json file in a dataframe:</span>
 <pre lang="scala">
-scala> val df = sqlContext.read.json("file:///tmp/wells_geoJSON.geojson")
+scala> val df = sqlContext.read.json("file:///tmp/colorado_wells.geojson")
 </pre>
 You will get some system output like this:
 <pre lang="scala">
@@ -351,48 +351,48 @@ Now we can go through the process of cleaning up the data and formatting it corr
 There appears an issue with upper case column names when saving from Spark to Cassandra (not sure whether it's the Spark Cassandra connector or Spark itself - there's a JIRA - I'm using Spark 1.6.1 here).
 So we first need to convert our column names to lower case. I've used a script containing the following sed commands:
 <pre>
-sed -i -e 's/"Api_Seq"/"api_seq"/' wells_geoJSON.geojson
-sed -i -e 's/"API_County"/"api_county"/' wells_geoJSON.geojson
-sed -i -e 's/"API_Label"/"api_label"/' wells_geoJSON.geojson
-sed -i -e 's/"API"/"api"/' wells_geoJSON.geojson
-sed -i -e 's/"Api"/"api"/' wells_geoJSON.geojson
-sed -i -e 's/"APi"/"api"/' wells_geoJSON.geojson
-sed -i -e 's/"Operator"/"operator"/' wells_geoJSON.geojson
-sed -i -e 's/"Well_Title"/"well_title"/' wells_geoJSON.geojson
-sed -i -e 's/"Facil_Id"/"facil_id"/' wells_geoJSON.geojson
-sed -i -e 's/"Facil_Type"/"facil_type"/' wells_geoJSON.geojson
-sed -i -e 's/"Facil_Stat"/"facil_stat"/' wells_geoJSON.geojson
-sed -i -e 's/"Operat_Num"/"operat_num"/' wells_geoJSON.geojson
-sed -i -e 's/"Well_Num"/"well_num"/' wells_geoJSON.geojson
-sed -i -e 's/"Well_Name"/"well_name"/' wells_geoJSON.geojson
-sed -i -e 's/"Field_Code"/"field_code"/' wells_geoJSON.geojson
-sed -i -e 's/"Dist_N_S"/"dist_n_s"/' wells_geoJSON.geojson
-sed -i -e 's/"Dir_N_S"/"dir_n_s"/' wells_geoJSON.geojson
-sed -i -e 's/"Dist_E_W"/"dist_e_w"/' wells_geoJSON.geojson
-sed -i -e 's/"Dir_E_W"/"dir_e_w"/' wells_geoJSON.geojson
-sed -i -e 's/"Qtr_Qtr"/"qtr_qtr"/' wells_geoJSON.geojson
-sed -i -e 's/"Section"/"section"/' wells_geoJSON.geojson
-sed -i -e 's/"Township"/"township"/' wells_geoJSON.geojson
-sed -i -e 's/"Range"/"range"/' wells_geoJSON.geojson
-sed -i -e 's/"Meridian"/"meridian"/' wells_geoJSON.geojson
-sed -i -e 's/"Latitude"/"latitude"/' wells_geoJSON.geojson
-sed -i -e 's/"Longitude"/"longitude"/' wells_geoJSON.geojson
-sed -i -e 's/"Ground_Ele"/"ground_ele"/' wells_geoJSON.geojson
-sed -i -e 's/"Utm_X"/"utm_x"/' wells_geoJSON.geojson
-sed -i -e 's/"Utm_Y"/"utm_y"/' wells_geoJSON.geojson
-sed -i -e 's/"Loc_Qual"/"loc_qual"/' wells_geoJSON.geojson
-sed -i -e 's/"Field_Name"/"field_name"/' wells_geoJSON.geojson
-sed -i -e 's/"Loc_ID"/"loc_id"/' wells_geoJSON.geojson
-sed -i -e 's/"Loc_Name"/"loc_name"/' wells_geoJSON.geojson
-sed -i -e 's/"Spud_Date"/"spud_date"/' wells_geoJSON.geojson
-sed -i -e 's/"Citing_Typ"/"citing_typ"/' wells_geoJSON.geojson
-sed -i -e 's/"Max_MD"/"max_md"/' wells_geoJSON.geojson
-sed -i -e 's/"Max_TVD"/"max_tvd"/' wells_geoJSON.geojson
+sed -i -e 's/"Api_Seq"/"api_seq"/' colorado_wells.geojson
+sed -i -e 's/"API_County"/"api_county"/' colorado_wells.geojson
+sed -i -e 's/"API_Label"/"api_label"/' colorado_wells.geojson
+sed -i -e 's/"API"/"api"/' colorado_wells.geojson
+sed -i -e 's/"Api"/"api"/' colorado_wells.geojson
+sed -i -e 's/"APi"/"api"/' colorado_wells.geojson
+sed -i -e 's/"Operator"/"operator"/' colorado_wells.geojson
+sed -i -e 's/"Well_Title"/"well_title"/' colorado_wells.geojson
+sed -i -e 's/"Facil_Id"/"facil_id"/' colorado_wells.geojson
+sed -i -e 's/"Facil_Type"/"facil_type"/' colorado_wells.geojson
+sed -i -e 's/"Facil_Stat"/"facil_stat"/' colorado_wells.geojson
+sed -i -e 's/"Operat_Num"/"operat_num"/' colorado_wells.geojson
+sed -i -e 's/"Well_Num"/"well_num"/' colorado_wells.geojson
+sed -i -e 's/"Well_Name"/"well_name"/' colorado_wells.geojson
+sed -i -e 's/"Field_Code"/"field_code"/' colorado_wells.geojson
+sed -i -e 's/"Dist_N_S"/"dist_n_s"/' colorado_wells.geojson
+sed -i -e 's/"Dir_N_S"/"dir_n_s"/' colorado_wells.geojson
+sed -i -e 's/"Dist_E_W"/"dist_e_w"/' colorado_wells.geojson
+sed -i -e 's/"Dir_E_W"/"dir_e_w"/' colorado_wells.geojson
+sed -i -e 's/"Qtr_Qtr"/"qtr_qtr"/' colorado_wells.geojson
+sed -i -e 's/"Section"/"section"/' colorado_wells.geojson
+sed -i -e 's/"Township"/"township"/' colorado_wells.geojson
+sed -i -e 's/"Range"/"range"/' colorado_wells.geojson
+sed -i -e 's/"Meridian"/"meridian"/' colorado_wells.geojson
+sed -i -e 's/"Latitude"/"latitude"/' colorado_wells.geojson
+sed -i -e 's/"Longitude"/"longitude"/' colorado_wells.geojson
+sed -i -e 's/"Ground_Ele"/"ground_ele"/' colorado_wells.geojson
+sed -i -e 's/"Utm_X"/"utm_x"/' colorado_wells.geojson
+sed -i -e 's/"Utm_Y"/"utm_y"/' colorado_wells.geojson
+sed -i -e 's/"Loc_Qual"/"loc_qual"/' colorado_wells.geojson
+sed -i -e 's/"Field_Name"/"field_name"/' colorado_wells.geojson
+sed -i -e 's/"Loc_ID"/"loc_id"/' colorado_wells.geojson
+sed -i -e 's/"Loc_Name"/"loc_name"/' colorado_wells.geojson
+sed -i -e 's/"Spud_Date"/"spud_date"/' colorado_wells.geojson
+sed -i -e 's/"Citing_Typ"/"citing_typ"/' colorado_wells.geojson
+sed -i -e 's/"Max_MD"/"max_md"/' colorado_wells.geojson
+sed -i -e 's/"Max_TVD"/"max_tvd"/' colorado_wells.geojson
 </pre>
 
 <H3>2. Load The geoJSON File Into A Spark DataFrame</H3>
 <pre lang="scala">
-scala> val df = sqlContext.read.json("file:///tmp/wells_geoJSON.geojson")
+scala> val df = sqlContext.read.json("file:///tmp/colorado_wells.geojson")
 </pre>
 
 <H3>3. Identify The Corrupt Record</H3>
