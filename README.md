@@ -1,8 +1,10 @@
+<h1>Saving geoJSON Data To Cassandra Using User-Defined Types, Spark Dataframes and Spark SQL</h1>
+
 The geoJSON data format is described at geojson.org as "<em><b>a format for encoding a variety of geographic data structures</b></em>".
 
 In this example I'll be using a set of oil/gas well data supplied by the State of Colorado describing approx 110,000 wells in the state.
 
-You can find a copy of this data at my GitHub <a href="https://github.com/simonambridge/geoJSON_to_Cassandra_using_Spark"> here</a>
+You can find a copy of this data <a href="https://github.com/simonambridge/geoJSON_to_Cassandra_using_Spark"> here</a>
 
 I'll start out with some examples of how to manipulate the data loaded into a dataframe, followed by the complete exercise to clean up and store the JSON data in cassandra.
 
