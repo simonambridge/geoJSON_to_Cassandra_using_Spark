@@ -759,6 +759,7 @@ We need to create the table to store our data. The table structure needs to refl
 I'm running this on a single node of Cassandra and Spark. If you're using multiple nodes you can increase the replication factor as required. If you're using multiple datacentres you should replace the replication strategy with 'NetworkTopologyStrategy'.
 <pre lang="sql">
 CREATE KEYSPACE IF NOT EXISTS wells WITH REPLICATION = {'class': 'SimpleStrategy', 'replication_factor': 1 };
+USE wells;
 </pre>
 <h4> Create A User-Defined Type For The Well Properties Structure </h4>
 <pre lang="sql">
