@@ -1,8 +1,8 @@
-#Saving geoJSON Data To Cassandra Using User-Defined Types, Spark Dataframes and Spark SQL
-
 The geoJSON data format is described at geojson.org as "<em><b>a format for encoding a variety of geographic data structures</b></em>".
 
 In this example I'll be using a set of oil/gas well data supplied by the State of Colorado describing approx 110,000 wells in the state.
+
+You can find a copy of this data at my GitHub <a href="https://github.com/simonambridge/geoJSON_to_Cassandra_using_Spark"> here</a>
 
 I'll start out with some examples of how to manipulate the data loaded into a dataframe, followed by the complete exercise to clean up and store the JSON data in cassandra.
 
@@ -385,7 +385,7 @@ sed -i -e 's/"Max_MD"/"max_md"/' wells_geoJSON.geojson
 sed -i -e 's/"Max_TVD"/"max_tvd"/' wells_geoJSON.geojson
 </pre>
 
-<H3>2. Load The geoJSON File</H3>
+<H3>2. Load The geoJSON File Into A Spark DataFrame</H3>
 <pre lang="scala">
 scala> val df = sqlContext.read.json("file:///tmp/wells_geoJSON.geojson")
 </pre>
@@ -829,6 +829,10 @@ Now that we have the data in a correctly formatted dataframe we can write it to 
 scala> wells.write.format("org.apache.spark.sql.cassandra").options(Map( "table" -> "wells", "keyspace" -> "wells")).save()
 </pre>
 This command expects the table to be empty. There are other options for the save command that you can explore for example <pre lang="scala">df.write.format.options.mode(SaveMode.Append).save()</pre>
+<br>
+Once the data is saved into Cassandra, go into cqlsh and query the records in the wells.wells table.
+
+Have fun!
 
 <h3>11. Reading From A Cassandra Table</H3>
 Of course, you may also want to read data BACK into a dataframe from a Cassandra table. To achieve this we can use the following Scala command:
