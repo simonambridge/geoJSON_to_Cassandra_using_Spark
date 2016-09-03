@@ -167,6 +167,41 @@ scala> df.show()
 only showing top 20 rows
 </pre>
 
+Spark doesn't understand the first element (column) in the geoJSON structure, the FeatureCollection wrapper, and shows it as a corrupt column. We will remove this when we save to Cassandra:
+
+<pre>
+scala> val x = sqlContext.sql("SELECT _corrupt_record FROM jsontable")
+x: org.apache.spark.sql.DataFrame = [_corrupt_record: string]
+
+scala> x.show()
+
++--------------------+
+|     _corrupt_record|
++--------------------+
+|                   {|
+|"type": "FeatureC...|
+|"crs": { "type": ...|
+|       "features": [|
+|                null|
+|                null|
+|                null|
+|                null|
+|                null|
+|                null|
+|                null|
+|                null|
+|                null|
+|                null|
+|                null|
+|                null|
+|                null|
+|                null|
+|                null|
+|                null|
++--------------------+
+only showing top 20 rows
+</pre>
+
 When the data is in the dataframe we can register it as a SparkSQL table (I've called it "jsontable") so that we can select data using SQL e.g. API and geometry coordinates for all wells into another dataframe called "well_locs":
 
 <pre>
@@ -236,41 +271,6 @@ scala> well_locs.show()
 |10310665|[204771.0, 441822...|
 |04511674|[233487.0, 438827...|
 +--------+--------------------+
-only showing top 20 rows
-</pre>
-
-Spark also doesn't understand the first element (column) in the geoJSON structure, the FeatureCollection wrapper, and shows it as a corrupt column:
-
-<pre>
-scala> val x = sqlContext.sql("SELECT _corrupt_record FROM jsontable")
-x: org.apache.spark.sql.DataFrame = [_corrupt_record: string]
-
-scala> x.show()
-
-+--------------------+
-|     _corrupt_record|
-+--------------------+
-|                   {|
-|"type": "FeatureC...|
-|"crs": { "type": ...|
-|       "features": [|
-|                null|
-|                null|
-|                null|
-|                null|
-|                null|
-|                null|
-|                null|
-|                null|
-|                null|
-|                null|
-|                null|
-|                null|
-|                null|
-|                null|
-|                null|
-|                null|
-+--------------------+
 only showing top 20 rows
 </pre>
 
