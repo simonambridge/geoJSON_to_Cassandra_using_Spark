@@ -4,7 +4,7 @@ The geoJSON data format is described at geojson.org as "<em><b>a format for enco
 
 In this example I'll be using a set of oil/gas well data supplied by the State of Colorado describing approx 110,000 wells in the state.
 
-You can find a copy of this data <a href="https://github.com/simonambridge/geoJSON_to_Cassandra_using_Spark"> here</a>
+You can find a copy of the data at my GitHub <a href="https://github.com/simonambridge/geoJSON_to_Cassandra_using_Spark"> here</a>
 
 I'll start out with some examples of how to manipulate the data loaded into a dataframe, followed by the complete exercise to clean up and store the JSON data in cassandra.
 
@@ -170,9 +170,44 @@ scala> df.show()
 only showing top 20 rows
 </pre>
 
-Register the dataframe as a SparkSQL table so that we can see it more easily:
+When the data is in the dataframe we can register it as a SparkSQL table (I've called it "jsontable") so that we can select data using SQL e.g. API and geometry coordinates for all wells into another dataframe called "well_locs":
+
 <pre>
-scala> df.registerTempTable("jsonTable");
+scala> df.registerTempTable("jsonTable")
+</pre>
+
+Now we can play with the data using SQL syntax:
+<pre>
+scala> val well_locs = sqlContext.sql("SELECT properties.API, geometry.coordinates FROM jsontable")
+well_locs: org.apache.spark.sql.DataFrame = [API: string, coordinates: array]
+
+scala> well_locs.show()
+
++--------+--------------------+
+|     API|         coordinates|
++--------+--------------------+
+|    null|                null|
+|    null|                null|
+|    null|                null|
+|    null|                null|
+|12508888|[722281.0, 447760...|
+|12323461|[524048.0, 444462...|
+|12323462|[530187.0, 445971...|
+|12323463|[523218.0, 444455...|
+|12323464|[523598.0, 444340...|
+|04511663|[235668.0, 437192...|
+|04511664|[235672.0, 437193...|
+|04511665|[236287.0, 437168...|
+|04511666|[236284.0, 437168...|
+|04511667|[244604.0, 437456...|
+|12323467|[524594.0, 445802...|
+|01306522|[494622.0, 444139...|
+|04511668|[244666.0, 437484...|
+|04511669|[244661.0, 437484...|
+|04511670|[244656.0, 437484...|
+|04511671|[245144.0, 437490...|
++--------+--------------------+
+only showing top 20 rows
 </pre>
 
 Spark doesn't understand the first element (column) in the geoJSON structure, the FeatureCollection wrapper, and shows it as a corrupt column. We will remove this when we save to Cassandra:
@@ -207,43 +242,6 @@ scala> x.show()
 |                null|
 |                null|
 +--------------------+
-only showing top 20 rows
-</pre>
-
-When the data is in the dataframe we can register it as a SparkSQL table (I've called it "jsontable") so that we can select data using SQL e.g. API and geometry coordinates for all wells into another dataframe called "well_locs":
-
-<pre>
-scala> df.registerTempTable("jsonTable")
-
-scala> val well_locs = sqlContext.sql("SELECT properties.API, geometry.coordinates FROM jsontable")
-well_locs: org.apache.spark.sql.DataFrame = [API: string, coordinates: array]
-
-scala> well_locs.show()
-
-+--------+--------------------+
-|     API|         coordinates|
-+--------+--------------------+
-|    null|                null|
-|    null|                null|
-|    null|                null|
-|    null|                null|
-|12508888|[722281.0, 447760...|
-|12323461|[524048.0, 444462...|
-|12323462|[530187.0, 445971...|
-|12323463|[523218.0, 444455...|
-|12323464|[523598.0, 444340...|
-|04511663|[235668.0, 437192...|
-|04511664|[235672.0, 437193...|
-|04511665|[236287.0, 437168...|
-|04511666|[236284.0, 437168...|
-|04511667|[244604.0, 437456...|
-|12323467|[524594.0, 445802...|
-|01306522|[494622.0, 444139...|
-|04511668|[244666.0, 437484...|
-|04511669|[244661.0, 437484...|
-|04511670|[244656.0, 437484...|
-|04511671|[245144.0, 437490...|
-+--------+--------------------+
 only showing top 20 rows
 </pre>
 
