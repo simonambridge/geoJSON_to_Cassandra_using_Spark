@@ -170,6 +170,11 @@ scala> df.show()
 only showing top 20 rows
 </pre>
 
+Register the dataframe as a SparkSQL table so that we can see it more easily:
+<pre>
+scala> df.registerTempTable("jsonTable");
+</pre>
+
 Spark doesn't understand the first element (column) in the geoJSON structure, the FeatureCollection wrapper, and shows it as a corrupt column. We will remove this when we save to Cassandra:
 
 <pre>
